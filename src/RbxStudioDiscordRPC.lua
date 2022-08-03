@@ -1,19 +1,25 @@
-local http = game:GetService("HttpService")
 local toolbar = plugin:CreateToolbar("Roblox Studio Discord rich presence")
 local button = toolbar:CreateButton("Open", "Open", "")
+button.ClickableWhenViewportHidden = true
 
--- Remember to set enable HTTP Requests in game settings!
 local HttpService = game:GetService("HttpService")
- 
+local StudioService = game:GetService("StudioService")
+
 local function request()
+	local curr = StudioService.ActiveScript
 	local response = HttpService:RequestAsync(
 		{
-			Url = "http://localhost:8000/",  -- This website helps debug HTTP requests
+			Url = "http://localhost:8000/rbxstudioDiscRPC",
 			Method = "POST",
 			Headers = {
-				["Content-Type"] = "application/json"  -- When sending JSON, set this!
+				["Content-Type"] = "application/json"
 			},
-			Body = HttpService:JSONEncode({hello = "world"})
+			Body = HttpService:JSONEncode({
+				EDITING =  if curr then {
+					NAME = curr.Name,
+					TYPE = curr.ClassName,
+				} else nil,
+			})
 		}
 	)
  
@@ -26,10 +32,12 @@ local function request()
 	end
 end
 
-button.Click:Connect(function()
-    -- Remember to wrap the function in a 'pcall' to prevent the script from breaking if the request fails
-    local success, message = pcall(request)
+local function onClick()
+	local success, message = pcall(request)
     if not success then
         print("Http Request failed:", message)
     end
-end)
+end
+
+button.Click:Connect(onClick)
+StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(onClick)
