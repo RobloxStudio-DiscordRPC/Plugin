@@ -1,5 +1,5 @@
 $pluginName = "RbxStudioDiscordRPC.lua"
-$pluginPath = (Get-Item .).FullName + "\src\$pluginName"
+$pluginPath = (Get-Item .).FullName + "\..\src\$pluginName"
 $robloxPluginsDir = $env:LOCALAPPDATA + "\Roblox\Plugins\"
 
 Write-Output ">> Copying $pluginPath to $robloxPluginsDir`n"
