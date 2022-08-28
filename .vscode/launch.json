@@ -6,9 +6,9 @@
     "configurations": [
         {
             "name": "Save to plugins folder",
-            "type": "python",
+            "type": "PowerShell",
             "request": "launch",
-            "program": "${workspaceFolder}\\dist\\save.py",
+            "program": "${workspaceFolder}\\dist\\windows_installer.ps1",
             "console": "integratedTerminal"
         },
     ]
