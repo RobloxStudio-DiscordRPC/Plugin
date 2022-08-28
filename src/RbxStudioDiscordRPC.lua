@@ -4,6 +4,8 @@ button.ClickableWhenViewportHidden = true
 
 local HttpService = game:GetService("HttpService")
 local StudioService = game:GetService("StudioService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local place = MarketplaceService:GetProductInfo(game.PlaceId)
 
 local function request()
 	local curr = StudioService.ActiveScript
@@ -15,6 +17,7 @@ local function request()
 				["Content-Type"] = "application/json"
 			},
 			Body = HttpService:JSONEncode({
+				PROJECT = place.Name,
 				EDITING =  if curr then {
 					NAME = curr.Name,
 					TYPE = curr.ClassName,
@@ -39,5 +42,6 @@ local function onClick()
     end
 end
 
+onClick()
 button.Click:Connect(onClick)
 StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(onClick)
