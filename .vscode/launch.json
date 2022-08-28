@@ -8,8 +8,7 @@
             "name": "Save to plugins folder",
             "type": "PowerShell",
             "request": "launch",
-            "program": "${workspaceFolder}\\dist\\windows_installer.ps1",
-            "console": "integratedTerminal"
+            "script": "${workspaceFolder}\\dist\\windows_installer.ps1",
         },
     ]
 }
