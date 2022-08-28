@@ -8,7 +8,8 @@
             "name": "Save to plugins folder",
             "type": "PowerShell",
             "request": "launch",
-            "script": "${workspaceFolder}\\dist\\windows_installer.ps1",
+            "cwd": "${workspaceFolder}",
+            "script": "${workspaceFolder}\\dist\\save.ps1"
         },
     ]
 }
