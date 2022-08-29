@@ -17,11 +17,11 @@ local function request()
 				["Content-Type"] = "application/json"
 			},
 			Body = HttpService:JSONEncode({
-				PROJECT = place.Name,
-				EDITING =  if curr then {
+				PROJECT  = place.Name,
+				EDITING  = if curr then {
 					NAME = curr.Name,
 					TYPE = curr.ClassName,
-				} else nil,
+				} else {},
 			})
 		}
 	)
