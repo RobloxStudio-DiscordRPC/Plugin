@@ -18,10 +18,11 @@ type RequestBody = {
 		TYPE: EditionType,
 		CLASS: ScriptClassnames|nil
 	}|{}
-}
+}|string
 
 local function request(body: RequestBody)
-	if not body.PROJECT then body.PROJECT = place.Name end
+	local isStr = type(body) == "string"
+	if not isStr and not body.PROJECT then body.PROJECT = place.Name end
 
 	local success, message = pcall(function()
 		local response = HttpService:RequestAsync(
@@ -29,9 +30,9 @@ local function request(body: RequestBody)
 				Url = "http://localhost:8000/rbxstudioDiscRPC",
 				Method = "POST",
 				Headers = {
-					["Content-Type"] = "application/json"
+					["Content-Type"] = if isStr then "text/plain" else "application/json"
 				},
-				Body = HttpService:JSONEncode(body)
+				Body = if isStr then body else HttpService:JSONEncode(body)
 			}
 		)
 
@@ -49,7 +50,7 @@ local function request(body: RequestBody)
     end
 end
 
-local function onClick()
+local function refresh()
 	local curr = StudioService.ActiveScript
 	request({
 		EDITING   = if curr then {
@@ -60,11 +61,11 @@ local function onClick()
 	})
 end
 
---onClick()
-button.Click:Connect(onClick)
-StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(onClick)
+refresh()
+button.Click:Connect(refresh)
+StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(refresh)
 
-local function somethingSelected()
+local function refreshSelection()
 	local selected = Selection:Get()
 	if #selected == 0 then return end
 
@@ -85,4 +86,12 @@ local function somethingSelected()
 	})
 end
 
-Selection.SelectionChanged:Connect(somethingSelected)
+Selection.SelectionChanged:Connect(refreshSelection)
+
+local function quit()
+	-- tell rpc to set to idle
+	print("go idle")
+	request("!IDLE")
+end
+
+plugin.Unloading:Connect(quit)
