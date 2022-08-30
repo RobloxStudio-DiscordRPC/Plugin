@@ -33,7 +33,7 @@ type Formats = {
 	STATE: ActivitySettings,
 	ASSETS: {
 		SMALL: string,
-		BIG: string
+		LARGE: string
 	}
 }
 
