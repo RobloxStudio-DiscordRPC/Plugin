@@ -56,13 +56,13 @@ type ScriptClassnames = "Script"|"LocalScript"|"ModuleScript"
 type EditingParams = {
 	NAME: string,
 	TYPE: EditionType,
-	CLASS: ScriptClassnames
+	CLASS: ScriptClassnames|nil
 }|{}
 
 type RequestBody = {
 	PROJECT: string|nil,
 	EDITING: EditingParams,
-	FORMATS: Formats,
+	FORMATS: Formats|nil,
 }|string
 
 local function request(body: RequestBody)
@@ -109,6 +109,65 @@ local function refresh()
 	})
 end
 
+local function serializeTable(
+	val: {[any]: any},
+	name: string|nil,
+	skipnewlines: boolean|nil,
+	depth: number|nil
+): string
+    skipnewlines = skipnewlines or false
+    depth = depth or 0 :: number
+
+    local tmp = string.rep("\t", depth)
+
+    if name then tmp ..= name .. " = " end
+
+    if type(val) == "table" then
+        tmp ..= "{" .. (not skipnewlines and "\n" or "")
+
+        for k, v in pairs(val) do
+            tmp =  tmp .. serializeTable(v, k, skipnewlines, depth + 1) .. "," .. (not skipnewlines and "\n" or "")
+        end
+
+        tmp ..= string.rep("\t", depth) .. "}"
+    elseif type(val) == "number" then
+        tmp ..= tostring(val)
+    elseif type(val) == "string" then
+        tmp ..= string.format("%q", val)
+    elseif type(val) == "boolean" then
+        tmp ..= (val and "true" or "false")
+    else
+        tmp ..= "\"[inserializeable datatype:" .. type(val) .. "]\""
+    end
+
+    return tmp
+end
+
+local function applyFormats()
+	local f: ModuleScript = workspace:FindFirstChild("RSDRPC-FORMATS")
+	if not f then
+		warn("RSDRPC: Couldn't find formats configuration.")
+		local config = Instance.new("ModuleScript")
+		config.Parent = workspace
+		config.Name = "RSDRPC-FORMATS"
+		config.Archivable = false
+		config.Source ..= "--This is the configuration for Roblox Studio Discord RPC\n\n"
+		config.Source ..= "return "..serializeTable(formats)
+		plugin:OpenScript(config, 3)
+		print("RSDRPC: Opened formats configuration.")
+		return
+	end
+	
+	if not f:IsA("ModuleScript") then
+		return warn("RSDRPC: Formats configuration is not a ModuleScript")
+	end
+
+	formats = require(f)
+end
+
+applyFormats()
+applyFormatsBtn.Click:Connect(applyFormats)
+
 refresh()
 refreshBtn.Click:Connect(refresh)
 StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(refresh)
@@ -135,16 +194,6 @@ local function refreshSelection()
 end
 
 Selection.SelectionChanged:Connect(refreshSelection)
-
-local function applyFormats()
-	local f: ModuleScript = workspace:FindFirstChild("RSDRPC-FORMATS")
-	if not f then return warn() end
-	if not f:IsA("ModuleScript") then return warn() end
-
-	formats = require(f)
-end
-
-applyFormatsBtn.Click:Connect(applyFormats)
 
 local function quit()
 	-- tell rpc to set to idle
