@@ -93,3 +93,5 @@ local function quit()
 end
 
 plugin.Unloading:Connect(quit)
+plugin.Deactivation:Connect(quit)
+plugin.Destroying:Connect(quit)
