@@ -1,3 +1,4 @@
+--!strict
 local function DecID2ImgID(id: number): string
 	return string.format("rbxthumb://type=Asset&id=%s&w=420&h=420",tostring(id))
 end
@@ -46,7 +47,7 @@ local formats: Formats = {
 	},
 	ASSETS      = {
 		SMALL   = "{}",
-		BIG     = "Roblox Studio",
+		LARGE   = "Roblox Studio",
 	},
 }
 
@@ -136,11 +137,11 @@ end
 Selection.SelectionChanged:Connect(refreshSelection)
 
 local function applyFormats()
-	local formats: ModuleScript = workspace:FindFirstChild("RSDRPC-FORMATS")
-	if not formats then return warn() end
-	if not formats:IsA("ModuleScript") then return warn() end
+	local f: ModuleScript = workspace:FindFirstChild("RSDRPC-FORMATS")
+	if not f then return warn() end
+	if not f:IsA("ModuleScript") then return warn() end
 
-	require(formats)
+	formats = require(f)
 end
 
 applyFormatsBtn.Click:Connect(applyFormats)
