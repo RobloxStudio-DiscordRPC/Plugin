@@ -1,26 +1,75 @@
-local toolbar = plugin:CreateToolbar("Roblox Studio Discord rich presence")
-local button = toolbar:CreateButton("Open", "Open", "")
-button.ClickableWhenViewportHidden = true
+local function DecID2ImgID(id: number): string
+	return string.format("rbxthumb://type=Asset&id=%s&w=420&h=420",tostring(id))
+end
+
+local toolbar = plugin:CreateToolbar("RSDRPC")
+local refreshBtn = toolbar:CreateButton(
+	"Refresh",
+	"Keep rich presence update with right now.",
+	DecID2ImgID(10768446856)
+)
+local applyFormatsBtn = toolbar:CreateButton(
+	"ApplyFormats",
+	"Apply the formats module script.",
+	DecID2ImgID(10768490718),
+	"Apply formats"
+)
+
+refreshBtn.ClickableWhenViewportHidden = true
 
 local HttpService = game:GetService("HttpService")
 local StudioService = game:GetService("StudioService")
 local Selection = game:GetService("Selection")
 
+type ActivitySettings = {
+	SCRIPT: string,
+	GUI: string,
+	BUILD: string,
+	DEFAULT: string|nil
+}
+type Formats = {
+	DETAILS: string,
+	STATE: ActivitySettings,
+	ASSETS: {
+		SMALL: string,
+		BIG: string
+	}
+}
+
+local formats: Formats = {
+	DETAILS     = "Working on {}",
+	STATE       = {
+		SCRIPT  = "Editing script: {}",
+		GUI     = "Designing GUI",
+		BUILD   = "Building",
+		DEFAULT = "Editing: {}",
+	},
+	ASSETS      = {
+		SMALL   = "{}",
+		BIG     = "Roblox Studio",
+	},
+}
+
 type EditionType = "SCRIPT"|"GUI"|"BUILD"
 type ScriptClassnames = "Script"|"LocalScript"|"ModuleScript"
+type EditingParams = {
+	NAME: string,
+	TYPE: EditionType,
+	CLASS: ScriptClassnames
+}|{}
 
 type RequestBody = {
 	PROJECT: string|nil,
-	EDITING: {
-		NAME: string,
-		TYPE: EditionType,
-		CLASS: ScriptClassnames|nil
-	}|{}
+	EDITING: EditingParams,
+	FORMATS: Formats,
 }|string
 
 local function request(body: RequestBody)
 	local isStr = type(body) == "string"
-	if not isStr and not body.PROJECT then body.PROJECT = game:GetFullName() end
+	if not isStr then
+		if not body.PROJECT then body.PROJECT = game:GetFullName() end
+		if not body.FORMATS then body.FORMATS = formats end
+	end
 
 	local success, message = pcall(function()
 		local response = HttpService:RequestAsync(
@@ -60,7 +109,7 @@ local function refresh()
 end
 
 refresh()
-button.Click:Connect(refresh)
+refreshBtn.Click:Connect(refresh)
 StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(refresh)
 
 local function refreshSelection()
@@ -85,6 +134,16 @@ local function refreshSelection()
 end
 
 Selection.SelectionChanged:Connect(refreshSelection)
+
+local function applyFormats()
+	local formats: ModuleScript = workspace:FindFirstChild("RSDRPC-FORMATS")
+	if not formats then return warn() end
+	if not formats:IsA("ModuleScript") then return warn() end
+
+	require(formats)
+end
+
+applyFormatsBtn.Click:Connect(applyFormats)
 
 local function quit()
 	-- tell rpc to set to idle
