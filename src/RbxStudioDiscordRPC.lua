@@ -4,8 +4,6 @@ button.ClickableWhenViewportHidden = true
 
 local HttpService = game:GetService("HttpService")
 local StudioService = game:GetService("StudioService")
-local MarketplaceService = game:GetService("MarketplaceService")
-local place = MarketplaceService:GetProductInfo(game.PlaceId)
 local Selection = game:GetService("Selection")
 
 type EditionType = "SCRIPT"|"GUI"|"BUILD"
@@ -22,7 +20,7 @@ type RequestBody = {
 
 local function request(body: RequestBody)
 	local isStr = type(body) == "string"
-	if not isStr and not body.PROJECT then body.PROJECT = place.Name end
+	if not isStr and not body.PROJECT then body.PROJECT = game:GetFullName() end
 
 	local success, message = pcall(function()
 		local response = HttpService:RequestAsync(
