@@ -17,6 +17,7 @@ local applyFormatsBtn = toolbar:CreateButton(
 )
 
 refreshBtn.ClickableWhenViewportHidden = true
+applyFormatsBtn.ClickableWhenViewportHidden = true
 
 local HttpService = game:GetService("HttpService")
 local StudioService = game:GetService("StudioService")
@@ -157,7 +158,7 @@ local function applyFormats()
 		print("RSDRPC: Opened formats configuration.")
 		return
 	end
-	
+
 	if not f:IsA("ModuleScript") then
 		return warn("RSDRPC: Formats configuration is not a ModuleScript")
 	end
