@@ -174,6 +174,8 @@ refreshBtn.Click:Connect(refresh)
 StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(refresh)
 
 local function refreshSelection()
+	if StudioService.ActiveScript then return end
+
 	local selected = Selection:Get()
 	if #selected == 0 then return end
 
