@@ -84,19 +84,7 @@ local function request(body: RequestBody)
 				Body = if isStr then body else HttpService:JSONEncode(body)
 			}
 		)
-
-		-- Inspect the response table
-		if response.Success then
-			print("Status code:", response.StatusCode, response.StatusMessage)
-			print("Response body:\n", response.Body)
-		else
-			print("The request failed:", response.StatusCode, response.StatusMessage)
-		end
 	end)
-
-	if not success then
-        print("Http Request failed:", message)
-    end
 end
 
 local function refresh()
@@ -200,7 +188,6 @@ Selection.SelectionChanged:Connect(refreshSelection)
 
 local function quit()
 	-- tell rpc to set to idle
-	print("go idle")
 	request("!IDLE")
 end
 
