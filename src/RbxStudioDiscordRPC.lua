@@ -20,6 +20,7 @@ refreshBtn.ClickableWhenViewportHidden = true
 applyFormatsBtn.ClickableWhenViewportHidden = true
 
 local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local StudioService = game:GetService("StudioService")
 local Selection = game:GetService("Selection")
 
@@ -69,7 +70,13 @@ type RequestBody = {
 local function request(body: RequestBody)
 	local isStr = type(body) == "string"
 	if not isStr then
-		if not body.PROJECT then body.PROJECT = game:GetFullName() end
+		if not body.PROJECT then
+			if game.PlaceId ~= 0 then
+				body.PROJECT = MarketplaceService:GetProductInfo(game.PlaceId).Name
+			else 
+				body.PROJECT = game:GetFullName()
+			end
+		end
 		if not body.FORMATS then body.FORMATS = formats end
 	end
 
