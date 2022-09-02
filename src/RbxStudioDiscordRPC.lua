@@ -20,6 +20,7 @@ refreshBtn.ClickableWhenViewportHidden = true
 applyFormatsBtn.ClickableWhenViewportHidden = true
 
 local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local StudioService = game:GetService("StudioService")
 local Selection = game:GetService("Selection")
 
@@ -69,7 +70,13 @@ type RequestBody = {
 local function request(body: RequestBody)
 	local isStr = type(body) == "string"
 	if not isStr then
-		if not body.PROJECT then body.PROJECT = game:GetFullName() end
+		if not body.PROJECT then
+			if game.PlaceId ~= 0 then
+				body.PROJECT = MarketplaceService:GetProductInfo(game.PlaceId).Name
+			else 
+				body.PROJECT = game:GetFullName()
+			end
+		end
 		if not body.FORMATS then body.FORMATS = formats end
 	end
 
@@ -84,19 +91,7 @@ local function request(body: RequestBody)
 				Body = if isStr then body else HttpService:JSONEncode(body)
 			}
 		)
-
-		-- Inspect the response table
-		if response.Success then
-			print("Status code:", response.StatusCode, response.StatusMessage)
-			print("Response body:\n", response.Body)
-		else
-			print("The request failed:", response.StatusCode, response.StatusMessage)
-		end
 	end)
-
-	if not success then
-        print("Http Request failed:", message)
-    end
 end
 
 local function refresh()
@@ -174,6 +169,8 @@ refreshBtn.Click:Connect(refresh)
 StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(refresh)
 
 local function refreshSelection()
+	if StudioService.ActiveScript then return end
+
 	local selected = Selection:Get()
 	if #selected == 0 then return end
 
@@ -198,7 +195,6 @@ Selection.SelectionChanged:Connect(refreshSelection)
 
 local function quit()
 	-- tell rpc to set to idle
-	print("go idle")
 	request("!IDLE")
 end
 
