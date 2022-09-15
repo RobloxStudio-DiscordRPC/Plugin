@@ -149,8 +149,7 @@ local function applyFormats()
 		config.Archivable = false
 		config.Source ..= "--This is the configuration for Roblox Studio Discord RPC\n\n"
 		config.Source ..= "return "..serializeTable(formats)
-		plugin:OpenScript(config, 3)
-		print("RSDRPC: Opened formats configuration.")
+		print("RSDRPC: Created formats configuration. Edit at "..config:GetFullName())
 		return
 	end
 
