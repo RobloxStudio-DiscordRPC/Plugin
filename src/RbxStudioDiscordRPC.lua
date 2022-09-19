@@ -171,7 +171,7 @@ local function refreshSelection()
 	if StudioService.ActiveScript then return end
 
 	local selected = Selection:Get()
-	if #selected == 0 then return end
+	if #selected == 0 then return request({EDITING = {}}) end
 
 	local recentlySelected = selected[#selected]
 	local editionType: EditionType
