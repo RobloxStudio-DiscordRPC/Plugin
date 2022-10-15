@@ -160,7 +160,7 @@ local function applyFormats()
 	formats = require(f)
 end
 
-applyFormats()
+if game:GetService("RunService"):IsEdit() then applyFormats() end
 applyFormatsBtn.Click:Connect(applyFormats)
 
 refresh()
